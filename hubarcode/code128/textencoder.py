@@ -4,7 +4,7 @@ import logging
 log = logging.getLogger("code128")
 
 
-import encoding
+from .encoding import charset_a, charset_b, charset_c, STOP, encodings
 
 START_A, START_B, START_C = 103, 104, 105
 TO_C, TO_B, TO_A = 99, 100, 101
@@ -71,11 +71,11 @@ class TextEncoder:
             # Switch from C - the next char is not a digit
 
             # by default, switch to B
-            if char in encoding.charset_b.keys():
+            if char in charset_b.keys():
                 codes = self.switch_charset('B')
 
             # but if the character's not in B, switch to A
-            elif char in encoding.charset_a.keys():
+            elif char in charset_a.keys():
                 codes = self.switch_charset('A')
 
             else:
@@ -95,8 +95,8 @@ class TextEncoder:
                 codes = self.switch_charset('C')
 
             # If B can't handle the next char, switch to A
-            elif char not in encoding.charset_b.keys():
-                if char in encoding.charset_a.keys():
+            elif char not in charset_b.keys():
+                if char in charset_a.keys():
                     codes = self.switch_charset('A')
                 else:
                     log.error("No charset found for character %d" % ord(char))
@@ -110,8 +110,8 @@ class TextEncoder:
                 codes = self.switch_charset('C')
 
             # If A can't handle the next char, switch to B
-            elif char not in encoding.charset_a.keys():
-                if char in encoding.charset_b.keys():
+            elif char not in charset_a.keys():
+                if char in charset_b.keys():
                     codes = self.switch_charset('B')
                 else:
                     log.error("No charset found for character %d" % ord(char))
@@ -126,14 +126,14 @@ class TextEncoder:
         into pairs and adding in each pair as a single character"""
 
         if self.current_charset == 'A':
-            return encoding.charset_a[char]
+            return charset_a[char]
 
         elif self.current_charset == 'B':
-            return encoding.charset_b[char]
+            return charset_b[char]
 
         elif self.current_charset == 'C':
-            if char in encoding.charset_c.keys():
-                return encoding.charset_c[char]
+            if char in charset_c.keys():
+                return charset_c[char]
             elif char.isdigit():
                 # store char in the digit buffer
                 # and append when there are two digits stored
@@ -190,9 +190,9 @@ class TextEncoder:
         full_code = encoded_text + [checksum, ]
         bars = ""
         for char in full_code:
-            bars += encoding.encodings[char]
+            bars += encodings[char]
 
-        bars += encoding.STOP
+        bars += STOP
         bars += "11"
 
         return bars

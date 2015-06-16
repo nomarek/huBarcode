@@ -1,5 +1,5 @@
 """Rendering code for code128 barcode"""
-from cStringIO import StringIO
+from io import StringIO
 try:
     from PIL import Image, ImageFont, ImageDraw
 except ImportError:
@@ -61,7 +61,7 @@ class Code128Renderer:
                 font = ImageFont.truetype(ttf_font, fontsize)
             else:
                 # Locate and load the font file relative to the module
-                c128dir, _ = os.path.split(__file__)
+                c128dir = os.path.dirname(os.path.realpath(__file__))
                 rootdir, _ = os.path.split(c128dir)
 
                 fontfile = os.path.join(
@@ -79,7 +79,7 @@ class Code128Renderer:
         # Image: has a white background
         bottom_border = self.options.get('bottom_border', 0)
         img = Image.new('L', (
-            self.image_width, self.image_height + bottom_border), 255)
+            self.image_width, int(self.image_height + bottom_border)), 255)
 
         class BarWriter:
             """Class which moves across the image, writing out bars"""
@@ -98,7 +98,7 @@ class Code128Renderer:
 
                 # only write anything to the image if bar value is 1
                 if value == 1:
-                    for ypos in range(self.symbol_top, self.bar_height):
+                    for ypos in range(int(self.symbol_top), int(self.bar_height)):
                         for xpos in range(self.current_x,
                                           self.current_x + bar_width):
                             img.putpixel((xpos, ypos), 0)

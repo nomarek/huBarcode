@@ -2,8 +2,9 @@
 
 
 import unittest
+import os
 
-from __init__ import Code128Encoder
+from .__init__ import Code128Encoder
 
 
 class Code128Test(unittest.TestCase):
@@ -39,11 +40,14 @@ class Code128Test(unittest.TestCase):
             self.assertEqual(enc.encoded_text, encoded)
 
         # B => C => B, with leftover digit
-        self.assertEqual(Code128Encoder('HI34567A').encoded_text, [104, 40, 41, 99, 34, 56, 100, 23, 33])
+        self.assertEqual(Code128Encoder('HI34567A').encoded_text, [104, 40, 41,
+                                                                   99, 34, 56,
+                                                                   100, 23, 33])
 
         # there was a Bug in C encoding when we have a leftover digit at the end
         # see https://github.com/hudora/huBarcode/issues/issue/11
-        self.assertEqual(Code128Encoder('12345').encoded_text, [105, 12, 34, 100, 21])
+        self.assertEqual(Code128Encoder('12345').encoded_text, [105, 12, 34,
+                                                                100, 21])
 
     def test_check_sum(self):
         """Make sure the checksum is calculated correctly"""
@@ -75,9 +79,12 @@ class Code128Test(unittest.TestCase):
             encoder = Code128Encoder(string)
             encoder.save('test.png')
 
+            c128dir = os.path.dirname(os.path.realpath(__file__))
+            rootdir, _ = os.path.split(c128dir)
+
             import filecmp
-            self.failUnless(filecmp.cmp('test.png',
-                            'hubarcode/code128/test_img/%d.png' % (index + 1)))
+            self.assertTrue(filecmp.cmp('test.png',
+                os.path.join(rootdir, 'code128/test_img/%d.png' % (index + 1))))
 
 
 if __name__ == '__main__':
